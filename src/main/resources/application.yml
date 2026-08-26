@@ -1,0 +1,16 @@
+#spring.jpa.hibernate.ddl-auto=update
+
+#none
+#Hibernate does nothing to the schema.
+
+#validate
+#Hibernate checks whether the DB schema matches the mappings.
+
+#update
+#Hibernate attempts to modify the existing schema to match the entities.
+
+#create
+#Hibernate creates the schema.
+
+#create-drop
+#Creates it and drops it when the persistence context/application shuts down.

@@ -30,14 +30,14 @@ DROP TABLE IF EXISTS customers;
 
 CREATE TABLE customers (
     customer_id     UUID,
-    name            VARCHAR(255) NOT NULL,
-    email           VARCHAR(255) NOT NULL,
+    customer_name            VARCHAR(255) NOT NULL,
+    customer_email           VARCHAR(255) NOT NULL,
 
     CONSTRAINT pk_customers
         PRIMARY KEY (customer_id),
 
     CONSTRAINT uq_customers_email
-        UNIQUE (email)
+        UNIQUE (customer_email)
 );
 
 
@@ -61,7 +61,7 @@ CREATE TABLE locations (
 CREATE TABLE couriers (
     courier_id      UUID,
     courier_name    VARCHAR(255) NOT NULL,
-    phone_number    VARCHAR(30),
+    courier_phone_number    VARCHAR(30),
 
     CONSTRAINT pk_couriers
         PRIMARY KEY (courier_id)
@@ -123,12 +123,12 @@ CREATE TABLE insurance_providers (
 CREATE TABLE shipments (
     shipment_id                 UUID,
 
-    customer_id                 UUID,
+    customer_id                 UUID NOT NULL,
     current_location_id         UUID,
     destination_location_id     UUID NOT NULL,
     assigned_courier_id         UUID,
 
-    status                      VARCHAR(50) NOT NULL,
+    shipment_status                      VARCHAR(50) NOT NULL,
     shipment_name               VARCHAR(255),
     shipment_comment            VARCHAR(1000),
 
@@ -214,13 +214,13 @@ CREATE TABLE shipment_tags (
 -- ============================================================
 
 CREATE TABLE shipment_insurance (
-    insurance_id        UUID,
+    shipment_insurance_id        UUID,
     shipment_id         UUID NOT NULL,
     provider_code       BIGINT NOT NULL,
     insured_value       NUMERIC(12,2) NOT NULL,
 
     CONSTRAINT pk_shipment_insurance
-        PRIMARY KEY (insurance_id),
+        PRIMARY KEY (shipment_insurance_id),
 
     CONSTRAINT uq_shipment_insurance_shipment
         UNIQUE (shipment_id),

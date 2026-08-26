@@ -2,38 +2,57 @@ package com.example.shipment.controller;
 
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentStatus;
-import org.springframework.stereotype.Controller;
+import com.example.shipment.service.ShipmentService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
-
-// @Controller or @RestController?
 @RestController
 @RequestMapping("/shipment")
 public class ShipmentController {
 
-    //@PathVariable @RequestBody annotations?
+    private final ShipmentService shipmentService;
 
-    @PostMapping("/create")
-    public String createShipment() {
-        Shipment shipment = new Shipment(UUID.randomUUID());
-        return "shipment/create";
+    public ShipmentController(ShipmentService shipmentService) {
+        this.shipmentService = shipmentService;
     }
 
-    @GetMapping("/get/{id}")
-    public String getShipmentById(@PathVariable UUID id) {
-        return "shipment/get";
+    @PostMapping("/create")
+    public String createShipment(@RequestBody Shipment shipment) {
+        Shipment newShipment = shipmentService.createShipment(shipment);
+        return "shipment/created, no: " + newShipment.getShipmentId();
+    }
+
+    @PostMapping("/createEmpty")
+    public String createEmptyShipment() {
+        Shipment shipment = shipmentService.createEmptyShipment();
+/*
+        shipment.setShipmentId(UUID.randomUUID());
+*/
+        return "shipment/created, no: " + shipment.getShipmentId();
+    }
+
+    @GetMapping("/get/{shipmentId}")
+    public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
+        Shipment shipment = shipmentService.getShipmentByShipmentId(shipmentId);
+        return shipment;
     }
 
     @GetMapping("/getAll")
-    public String getAllShipments() {
-        return "shipment/getAll";
+    public List<Shipment> getAllShipments() {
+        List<Shipment> shipments = shipmentService.getAllShipments();
+        return shipments;
     }
 
-    //{"status": "IN_TRANSIT"} - for typical JSON the RequestBody TYPE will have to be modified
-    @PatchMapping("/update/{id}")
-    public String updateShipmentStatus(@PathVariable UUID id, @RequestBody ShipmentStatus shipmentStatus) {
-        return "shipment/update";
+    @PatchMapping("/update/{shipmentId}")
+    public String updateShipmentStatus(
+            @PathVariable UUID shipmentId,
+            @RequestBody ShipmentStatus shipmentStatus) {
+
+        String statusUpdateResult =
+                shipmentService.updateShipmentStatus(shipmentId, shipmentStatus);
+
+        return statusUpdateResult;
     }
 }

@@ -1,27 +1,107 @@
 package com.example.shipment.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-@Entity(name = "shipment")
+@Entity
+@Table(name = "shipments")
+@Getter
+@Setter
 public class Shipment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column(name = "shipment_id")
-    private UUID shipmentId;
-
-    @Enumerated(EnumType.STRING)
-    private ShipmentStatus status;
-
+    protected Shipment() {
+    }
 
     public Shipment(UUID shipmentId) {
         this.shipmentId = shipmentId;
     }
 
-    public Shipment() {
+    public Shipment(UUID shipmentId, Customer customer, ShipmentStatus shipmentStatus,
+                    Location currentLocation, Location destinationLocation, String shipmentName,
+                    String shipmentComment, BigDecimal weightKg, BigDecimal declaredValue) {
+        this.shipmentId = shipmentId;
+        this.customer = customer;
+        this.shipmentStatus = shipmentStatus;
+        this.currentLocation = currentLocation;
+        this.destinationLocation = destinationLocation;
+        this.shipmentName = shipmentName;
+        this.shipmentComment = shipmentComment;
+        this.weightKg = weightKg;
+        this.declaredValue = declaredValue;
     }
+
+    @Id
+    @Column(name = "shipment_id")
+    private UUID shipmentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shipment_status", nullable = false, length = 50)
+    private ShipmentStatus shipmentStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @JoinColumn(name = "current_location_id")
+    @ManyToOne
+    private Location currentLocation;
+
+    @JoinColumn(name = "destination_location_id", nullable = false)
+    @ManyToOne
+    private Location destinationLocation;
+
+    @JoinColumn(name = "assigned_courier_id")
+    @ManyToOne
+    private Courier assignedCourier;
+
+    @Column(name = "shipment_name")
+    private String shipmentName;
+
+    @Column(name = "shipment_comment", length = 1000)
+    private String shipmentComment;
+
+    @Digits(integer = 10, fraction = 3)
+    @Column(name = "weight_kg", precision = 10, scale = 3)
+    private BigDecimal weightKg;
+
+    @Digits(integer = 12, fraction = 2)
+    @Column(name = "declared_value", precision = 12, scale = 2)
+    private BigDecimal declaredValue;
+
+
+    // version1 - shipment_tags is not represented as an entity, the name of table is only
+    // used as below, so we are making direct link between Shipment and Tag
+    /*      @ManyToMany
+            @JoinTable(
+                    name = "shipment_tags",
+                    joinColumns =
+                    @JoinColumn(name = "shipment_id"),
+                    inverseJoinColumns =
+                    @JoinColumn(name = "tag_code")
+            )
+            private Set<Tag> tags = new HashSet<>();*/
+
+
+    // version 2: ShipmentTag is modeled as an entity with a composite primary key
+    @OneToMany(mappedBy = "shipment")
+    private Set<ShipmentTag> shipmentTags = new HashSet<>();
+
+    /* version 3: ShipmentTag is modeled as an entity with its own surrogate primary key
+    // Shipment and Tag are therefore connected indirectly through ShipmentTag.
+    @OneToMany(mappedBy = "shipment")
+    private Set<ShipmentTag> shipmentTags = new HashSet<>();*/
+
+    // optional
+    @OneToOne(mappedBy = "shipment")
+    private ShipmentInsurance insurance;
+
+
 }
