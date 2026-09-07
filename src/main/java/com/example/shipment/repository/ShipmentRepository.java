@@ -6,13 +6,29 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Repository
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
+    List<Shipment> getShipmentByShipmentId(UUID shipmentId);
+
+    Shipment findByShipmentId(UUID shipmentId);
+
+    @Query("""
+                select s
+                from Shipment s
+                left join fetch s.customer
+                where s.shipmentId = :shipmentId
+            """)
+    Shipment findByShipmentIdWithCustomerData(UUID shipmentId);
+
+    /*List<Shipment> getShipmentByShipmentId(UUID shipmentId);*/
+    /*  List<Shipment> getShipmentByShipmentId(UUID shipmentId);*/
 }

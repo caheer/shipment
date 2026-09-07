@@ -1,5 +1,6 @@
 package com.example.shipment.controller;
 
+import com.example.shipment.model.Customer;
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentStatus;
 import com.example.shipment.service.ShipmentService;
@@ -36,6 +37,14 @@ public class ShipmentController {
     @GetMapping("/get/{shipmentId}")
     public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
         Shipment shipment = shipmentService.getShipmentByShipmentId(shipmentId);
+        //shipment.setCustomer(new Customer(UUID.randomUUID()));
+
+        return shipment;
+    }
+
+    @GetMapping("/getWithCustomer/{shipmentId}")
+    public Shipment getShipmentByShipmentIdWithCustomerData(@PathVariable UUID shipmentId) {
+        Shipment shipment = shipmentService.getShipmentByShipmentIdWithCustomerData(shipmentId);
         return shipment;
     }
 
@@ -43,6 +52,12 @@ public class ShipmentController {
     public List<Shipment> getAllShipments() {
         List<Shipment> shipments = shipmentService.getAllShipments();
         return shipments;
+    }
+
+    @GetMapping("/getAllTest")
+    public String getAllShipmentsTest() {
+        List<Shipment> shipments = shipmentService.getAllShipments();
+        return "SHIPMENTS";
     }
 
     @PatchMapping("/update/{shipmentId}")

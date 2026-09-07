@@ -5,6 +5,7 @@ import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentStatus;
 import com.example.shipment.repository.ShipmentRepository;
 import com.fasterxml.uuid.Generators;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,8 +52,18 @@ public class ShipmentService {
         return "Result of status update...";
     }
 
+    @Transactional
     public List<Shipment> getAllShipments() {
-        ArrayList<Shipment> shipments = new ArrayList<Shipment>();
+
+        System.out.println("############################ LOADING ALL SHIPMENTS FROM DB...");
+        List<Shipment> shipments = shipmentRepository.findAll();
+        System.out.println("############################FINISHED LOADING ALL SHIPMENTS FROM DB...");
+
+        for (Shipment shipment : shipments) {
+            System.out.println(
+                    shipment.getCustomer().getCustomerName()
+            );
+        }
 
         // GET ALL SHIPMENTS FROM DB
         // handle exceptions
@@ -60,7 +71,19 @@ public class ShipmentService {
         return shipments;
     }
 
+    @Transactional
     public Shipment getShipmentByShipmentId(UUID shipmentId) {
+
+        Shipment someShipment = shipmentRepository.findByShipmentId(shipmentId);
+        //Customer customer = someShipment.getCustomer();
+        someShipment.setCustomer(new Customer(UUID.randomUUID()));
+        //String email = someShipment.getCustomer().getCustomerEmail();
+/*        Customer customer = someShipment.getCustomer();
+
+        String customerName = customer.getCustomerName();
+
+        String email = customer.getCustomerEmail();*/
+
 
         // GET SHIPMENT FROM DB BY shipmentId
         // more than one shipment with the same id?
@@ -69,6 +92,13 @@ public class ShipmentService {
         // Or throw exception?
         // maybe use Optional?
 
-        return null;
+        return someShipment;
+    }
+
+    @Transactional
+    public Shipment getShipmentByShipmentIdWithCustomerData(UUID shipmentId) {
+
+        Shipment someShipment = shipmentRepository.findByShipmentIdWithCustomerData(shipmentId);
+        return someShipment;
     }
 }

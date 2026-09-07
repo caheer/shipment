@@ -14,3 +14,20 @@
 
 #create-drop
 #Creates it and drops it when the persistence context/application shuts down.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shipment_db
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    open-in-view: false
+
+    properties:
+      hibernate:
+        format_sql: true

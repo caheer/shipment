@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +45,7 @@ public class Shipment {
     @Column(name = "shipment_status", nullable = false, length = 50)
     private ShipmentStatus shipmentStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
@@ -76,9 +75,18 @@ public class Shipment {
     @Column(name = "declared_value", precision = 12, scale = 2)
     private BigDecimal declaredValue;
 
+    @OneToMany(mappedBy = "shipment")
+    private Set<ShipmentTag> shipmentTags = new HashSet<>();
 
-    // version1 - shipment_tags is not represented as an entity, the name of table is only
-    // used as below, so we are making direct link between Shipment and Tag
+
+    // optional
+    @OneToOne(mappedBy = "shipment")
+    private ShipmentInsurance insurance;
+}
+
+// DIFFERENT WAYS OF MODELING MANY TO MANY:
+// version1 - shipment_tags is not represented as an entity, the name of table is only
+// used as below, so we are making direct link between Shipment and Tag
     /*      @ManyToMany
             @JoinTable(
                     name = "shipment_tags",
@@ -90,18 +98,11 @@ public class Shipment {
             private Set<Tag> tags = new HashSet<>();*/
 
 
-    // version 2: ShipmentTag is modeled as an entity with a composite primary key
-    @OneToMany(mappedBy = "shipment")
-    private Set<ShipmentTag> shipmentTags = new HashSet<>();
+// version 2: ShipmentTag is modeled as an entity with a composite primary key
+//@OneToMany(mappedBy = "shipment")
+//private Set<ShipmentTag> shipmentTags = new HashSet<>();
 
     /* version 3: ShipmentTag is modeled as an entity with its own surrogate primary key
     // Shipment and Tag are therefore connected indirectly through ShipmentTag.
     @OneToMany(mappedBy = "shipment")
     private Set<ShipmentTag> shipmentTags = new HashSet<>();*/
-
-    // optional
-    @OneToOne(mappedBy = "shipment")
-    private ShipmentInsurance insurance;
-
-
-}
