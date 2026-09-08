@@ -59,14 +59,26 @@ public class ShipmentService {
         List<Shipment> shipments = shipmentRepository.findAll();
         System.out.println("############################FINISHED LOADING ALL SHIPMENTS FROM DB...");
 
+/*
         for (Shipment shipment : shipments) {
             System.out.println(
                     shipment.getCustomer().getCustomerName()
             );
         }
+*/
 
         // GET ALL SHIPMENTS FROM DB
         // handle exceptions
+
+        return shipments;
+    }
+
+    @Transactional
+    public List<Shipment> getAllShipmentsWithInsurance() {
+
+        System.out.println("############################ LOADING ALL SHIPMENTS (WITH INSURANCE) FROM DB...");
+        List<Shipment> shipments = shipmentRepository.findAllWithInsurance();
+        System.out.println("############################FINISHED LOADING ALL SHIPMENTS (WITH INSURANCE) FROM DB...");
 
         return shipments;
     }

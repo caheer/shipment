@@ -1,25 +1,36 @@
 package com.example.shipment.repository;
 
 import com.example.shipment.model.Shipment;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 
 @Repository
-public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
+public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
+
     List<Shipment> getShipmentByShipmentId(UUID shipmentId);
 
     Shipment findByShipmentId(UUID shipmentId);
+
+    @EntityGraph(attributePaths = {
+            "insurance",
+            "insurance.provider",
+            "customer"
+    })
+    @Query("select s from Shipment s")
+    List<Shipment> findAllWithDetails();
+
+
+    @Query("""
+                select s
+                from Shipment s
+                left join fetch s.insurance
+            """)
+    List<Shipment> findAllWithInsurance();
 
     @Query("""
                 select s
@@ -29,6 +40,4 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
             """)
     Shipment findByShipmentIdWithCustomerData(UUID shipmentId);
 
-    /*List<Shipment> getShipmentByShipmentId(UUID shipmentId);*/
-    /*  List<Shipment> getShipmentByShipmentId(UUID shipmentId);*/
 }

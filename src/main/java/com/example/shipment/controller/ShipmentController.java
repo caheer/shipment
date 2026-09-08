@@ -54,6 +54,12 @@ public class ShipmentController {
         return shipments;
     }
 
+    @GetMapping("/getAllWithInsurance")
+    public List<Shipment> getAllShipmentsWithInsurance() {
+        List<Shipment> shipments = shipmentService.getAllShipmentsWithInsurance();
+        return shipments;
+    }
+
     @GetMapping("/getAllTest")
     public String getAllShipmentsTest() {
         List<Shipment> shipments = shipmentService.getAllShipments();

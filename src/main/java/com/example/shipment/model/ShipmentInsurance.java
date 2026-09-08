@@ -13,20 +13,12 @@ public class ShipmentInsurance {
     @Id
     @Column(name = "shipment_insurance_id")
     private UUID shipmentInsuranceId;
-/*
 
-    @Column(name = "shipment_id", nullable = false, unique = true)
-    private UUID shipmentId;
-*/
-
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipment_id", nullable = false)
     private Shipment shipment;
 
-/*    @Column(name = "provider_code", nullable = false)
-    private Long providerCode;*/
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_code", nullable = false)
     private InsuranceProvider provider;
 

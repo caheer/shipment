@@ -50,15 +50,15 @@ public class Shipment {
     private Customer customer;
 
     @JoinColumn(name = "current_location_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Location currentLocation;
 
     @JoinColumn(name = "destination_location_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Location destinationLocation;
 
     @JoinColumn(name = "assigned_courier_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Courier assignedCourier;
 
     @Column(name = "shipment_name")
@@ -75,34 +75,11 @@ public class Shipment {
     @Column(name = "declared_value", precision = 12, scale = 2)
     private BigDecimal declaredValue;
 
+    // ShipmentTag is modeled as an entity with its own surrogate primary key
     @OneToMany(mappedBy = "shipment")
     private Set<ShipmentTag> shipmentTags = new HashSet<>();
-
 
     // optional
     @OneToOne(mappedBy = "shipment")
     private ShipmentInsurance insurance;
 }
-
-// DIFFERENT WAYS OF MODELING MANY TO MANY:
-// version1 - shipment_tags is not represented as an entity, the name of table is only
-// used as below, so we are making direct link between Shipment and Tag
-    /*      @ManyToMany
-            @JoinTable(
-                    name = "shipment_tags",
-                    joinColumns =
-                    @JoinColumn(name = "shipment_id"),
-                    inverseJoinColumns =
-                    @JoinColumn(name = "tag_code")
-            )
-            private Set<Tag> tags = new HashSet<>();*/
-
-
-// version 2: ShipmentTag is modeled as an entity with a composite primary key
-//@OneToMany(mappedBy = "shipment")
-//private Set<ShipmentTag> shipmentTags = new HashSet<>();
-
-    /* version 3: ShipmentTag is modeled as an entity with its own surrogate primary key
-    // Shipment and Tag are therefore connected indirectly through ShipmentTag.
-    @OneToMany(mappedBy = "shipment")
-    private Set<ShipmentTag> shipmentTags = new HashSet<>();*/
