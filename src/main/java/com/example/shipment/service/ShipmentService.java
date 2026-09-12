@@ -1,116 +1,90 @@
 package com.example.shipment.service;
 
-import com.example.shipment.model.Customer;
+import com.example.shipment.dto.ShipmentListDto;
+import com.example.shipment.model.Event;
 import com.example.shipment.model.Shipment;
+import com.example.shipment.model.ShipmentEvent;
 import com.example.shipment.model.ShipmentStatus;
+import com.example.shipment.repository.EventRepository;
+import com.example.shipment.repository.ShipmentEventRepository;
 import com.example.shipment.repository.ShipmentRepository;
-import com.fasterxml.uuid.Generators;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
+    private final EventRepository eventRepository;
+    private final ShipmentEventRepository shipmentEventRepository;
 
-    public ShipmentService(ShipmentRepository shipmentRepository) {
+    public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository) {
         this.shipmentRepository = shipmentRepository;
+        this.eventRepository = eventRepository;
+        this.shipmentEventRepository = shipmentEventRepository;
     }
 
-    public Shipment createShipment(Shipment shipment) {
-        // SAVE SHIPMENT TO DB
-        // exception handling
-        return shipment;
+    @Transactional
+    public Shipment createNewShipment(Shipment shipment) {
+
+        Event event = eventRepository.findByEventCode(4000000001L);
+        Shipment newShipment = new Shipment(UUID.randomUUID(), null, ShipmentStatus.CREATED, null,
+                null, shipment.getShipmentName(), null, null, null);
+        shipmentRepository.save(newShipment);
+        ShipmentEvent shipmentEvent = new ShipmentEvent(UUID.randomUUID(), newShipment, event, LocalDateTime.now());
+        shipmentEventRepository.save(shipmentEvent);
+
+        return newShipment;
     }
 
-    public Shipment createEmptyShipment() {
 
-        //UUID uuid = Generators.timeBasedEpochGenerator().generate(); // Version 7
-        Shipment shipment = new Shipment(UUID.randomUUID());
-
-        Customer customer = new Customer(UUID.randomUUID());
-
-        // SAVE SHIPMENT TO DB
-        // exception handling
-
-        return shipment;
-    }
-
+    @Transactional
     public String updateShipmentStatus(
             UUID shipmentId,
             ShipmentStatus shipmentStatus) {
 
-        // get shipment from DB by its shipmentId
-        // UPDATE SHIPMENT STATUS IN DB
-        // IF SUCCESSFUL RETURN SUCCESS MESSAGE, ELSE RETURN FAILURE MESSAGE
-        // handle exceptions
-
-        return "Result of status update...";
-    }
-
-    @Transactional
-    public List<Shipment> getAllShipments() {
-
-        System.out.println("############################ LOADING ALL SHIPMENTS FROM DB...");
-        List<Shipment> shipments = shipmentRepository.findAll();
-        System.out.println("############################FINISHED LOADING ALL SHIPMENTS FROM DB...");
-
+        Shipment shipment = shipmentRepository.findByShipmentId(shipmentId);
+        shipment.setShipmentStatus(shipmentStatus);
 /*
-        for (Shipment shipment : shipments) {
-            System.out.println(
-                    shipment.getCustomer().getCustomerName()
-            );
-        }
+        shipmentRepository.save(shipment); - not needed, entity is already managed, dirty checking will do the save
 */
+        Event event = eventRepository.findByEventName(shipmentStatus.name());
+        ShipmentEvent shipmentEvent = new ShipmentEvent(UUID.randomUUID(), shipment, event, LocalDateTime.now());
+        shipmentEventRepository.save(shipmentEvent);
 
-        // GET ALL SHIPMENTS FROM DB
-        // handle exceptions
+        return "Shipment " + shipmentId + "status updated to: " + shipmentStatus.getLabel();
+    }
 
+    @Transactional
+    public List<Shipment> getAllShipmentsWithDetails() {
+        List<Shipment> shipments = shipmentRepository.findAllWithDetails();
         return shipments;
     }
 
     @Transactional
-    public List<Shipment> getAllShipmentsWithInsurance() {
+    public Shipment findWithDetailsByShipmentId(UUID shipmentId) {
+        Optional<Shipment> shipment = shipmentRepository.findWithDetailsByShipmentId(shipmentId);
 
-        System.out.println("############################ LOADING ALL SHIPMENTS (WITH INSURANCE) FROM DB...");
-        List<Shipment> shipments = shipmentRepository.findAllWithInsurance();
-        System.out.println("############################FINISHED LOADING ALL SHIPMENTS (WITH INSURANCE) FROM DB...");
+/*        if(shipment.isPresent()){
+            return shipment.get();
+        } else {
+            return null;
+        }*/
 
-        return shipments;
+        return shipment.orElse(null);
     }
 
     @Transactional
-    public Shipment getShipmentByShipmentId(UUID shipmentId) {
-
-        Shipment someShipment = shipmentRepository.findByShipmentId(shipmentId);
-        //Customer customer = someShipment.getCustomer();
-        someShipment.setCustomer(new Customer(UUID.randomUUID()));
-        //String email = someShipment.getCustomer().getCustomerEmail();
-/*        Customer customer = someShipment.getCustomer();
-
-        String customerName = customer.getCustomerName();
-
-        String email = customer.getCustomerEmail();*/
-
-
-        // GET SHIPMENT FROM DB BY shipmentId
-        // more than one shipment with the same id?
-        // constraints on db should prevent this
-        // no shipment found? - return null?
-        // Or throw exception?
-        // maybe use Optional?
-
-        return someShipment;
+    public Page<ShipmentListDto> getShipmentList(int page, int size) {
+        return shipmentRepository.findShipmentList(PageRequest.of(page, size));
     }
 
-    @Transactional
-    public Shipment getShipmentByShipmentIdWithCustomerData(UUID shipmentId) {
 
-        Shipment someShipment = shipmentRepository.findByShipmentIdWithCustomerData(shipmentId);
-        return someShipment;
-    }
 }

@@ -1,9 +1,10 @@
 package com.example.shipment.controller;
 
-import com.example.shipment.model.Customer;
+import com.example.shipment.dto.ShipmentListDto;
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentStatus;
 import com.example.shipment.service.ShipmentService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,54 +20,17 @@ public class ShipmentController {
         this.shipmentService = shipmentService;
     }
 
-    @PostMapping("/create")
-    public String createShipment(@RequestBody Shipment shipment) {
-        Shipment newShipment = shipmentService.createShipment(shipment);
+    @PostMapping("/createNewShipment")
+    public String createNewShipment(@RequestBody Shipment shipment) {
+
+        if (shipment.getShipmentName() == null) {
+            return "Shipment name can't be empty";
+        }
+        Shipment newShipment = shipmentService.createNewShipment(shipment);
         return "shipment/created, no: " + newShipment.getShipmentId();
     }
 
-    @PostMapping("/createEmpty")
-    public String createEmptyShipment() {
-        Shipment shipment = shipmentService.createEmptyShipment();
-/*
-        shipment.setShipmentId(UUID.randomUUID());
-*/
-        return "shipment/created, no: " + shipment.getShipmentId();
-    }
-
-    @GetMapping("/get/{shipmentId}")
-    public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
-        Shipment shipment = shipmentService.getShipmentByShipmentId(shipmentId);
-        //shipment.setCustomer(new Customer(UUID.randomUUID()));
-
-        return shipment;
-    }
-
-    @GetMapping("/getWithCustomer/{shipmentId}")
-    public Shipment getShipmentByShipmentIdWithCustomerData(@PathVariable UUID shipmentId) {
-        Shipment shipment = shipmentService.getShipmentByShipmentIdWithCustomerData(shipmentId);
-        return shipment;
-    }
-
-    @GetMapping("/getAll")
-    public List<Shipment> getAllShipments() {
-        List<Shipment> shipments = shipmentService.getAllShipments();
-        return shipments;
-    }
-
-    @GetMapping("/getAllWithInsurance")
-    public List<Shipment> getAllShipmentsWithInsurance() {
-        List<Shipment> shipments = shipmentService.getAllShipmentsWithInsurance();
-        return shipments;
-    }
-
-    @GetMapping("/getAllTest")
-    public String getAllShipmentsTest() {
-        List<Shipment> shipments = shipmentService.getAllShipments();
-        return "SHIPMENTS";
-    }
-
-    @PatchMapping("/update/{shipmentId}")
+    @PatchMapping("/updateShipmentStatus/{shipmentId}")
     public String updateShipmentStatus(
             @PathVariable UUID shipmentId,
             @RequestBody ShipmentStatus shipmentStatus) {
@@ -76,4 +40,22 @@ public class ShipmentController {
 
         return statusUpdateResult;
     }
+
+    @GetMapping("/getShipmentById/{shipmentId}")
+    public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
+        Shipment shipment = shipmentService.findWithDetailsByShipmentId(shipmentId);
+        return shipment;
+    }
+
+    @GetMapping("/getAll")
+    public List<Shipment> getAllShipments() {
+        List<Shipment> shipments = shipmentService.getAllShipmentsWithDetails();
+        return shipments;
+    }
+
+    @GetMapping("/shipmentsList")
+    public Page<ShipmentListDto> getShipments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+        return shipmentService.getShipmentList(page, size);
+    }
+
 }

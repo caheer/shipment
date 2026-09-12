@@ -125,11 +125,11 @@ CREATE TABLE shipments (
 
                            customer_id                 UUID NOT NULL,
                            current_location_id         UUID,
-                           destination_location_id     UUID NOT NULL,
+                           destination_location_id     UUID,
                            assigned_courier_id         UUID,
 
                            shipment_status                      VARCHAR(50) NOT NULL,
-                           shipment_name               VARCHAR(255),
+                           shipment_name               VARCHAR(255) NOT NULL,
                            shipment_comment            VARCHAR(1000),
 
                            weight_kg                   NUMERIC(10,3),

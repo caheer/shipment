@@ -53,7 +53,7 @@ public class Shipment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Location currentLocation;
 
-    @JoinColumn(name = "destination_location_id", nullable = false)
+    @JoinColumn(name = "destination_location_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location destinationLocation;
 
@@ -61,7 +61,7 @@ public class Shipment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Courier assignedCourier;
 
-    @Column(name = "shipment_name")
+    @Column(name = "shipment_name", nullable = false)
     private String shipmentName;
 
     @Column(name = "shipment_comment", length = 1000)
@@ -76,8 +76,8 @@ public class Shipment {
     private BigDecimal declaredValue;
 
     // ShipmentTag is modeled as an entity with its own surrogate primary key
-    @OneToMany(mappedBy = "shipment")
-    private Set<ShipmentTag> shipmentTags = new HashSet<>();
+/*    @OneToMany(mappedBy = "shipment")
+    private Set<ShipmentTag> shipmentTags = new HashSet<>();*/
 
     // optional
     @OneToOne(mappedBy = "shipment")
