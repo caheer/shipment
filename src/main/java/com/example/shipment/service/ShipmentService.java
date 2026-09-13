@@ -5,9 +5,8 @@ import com.example.shipment.model.Event;
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentEvent;
 import com.example.shipment.model.ShipmentStatus;
-import com.example.shipment.repository.EventRepository;
-import com.example.shipment.repository.ShipmentEventRepository;
-import com.example.shipment.repository.ShipmentRepository;
+import com.example.shipment.repository.*;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,11 +22,16 @@ public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final EventRepository eventRepository;
     private final ShipmentEventRepository shipmentEventRepository;
+    private final ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository;
 
-    public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository) {
+    private final EntityManager entityManager;
+
+    public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository, ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository, EntityManager entityManager) {
         this.shipmentRepository = shipmentRepository;
         this.eventRepository = eventRepository;
         this.shipmentEventRepository = shipmentEventRepository;
+        this.shipmentSearchByCriteriaRepository = shipmentSearchByCriteriaRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -63,28 +66,46 @@ public class ShipmentService {
     }
 
     @Transactional
+    public Page<ShipmentListDto> getShipmentListPage(int page, int size) {
+        return shipmentRepository.findShipmentList(PageRequest.of(page, size));
+    }
+
+    @Transactional
+    public void searchShipmentsByCriteria() {
+        ShipmentSearchCriteria shipmentSearchCriteria = new ShipmentSearchCriteria();
+        shipmentSearchCriteria.setShipmentName("TEST");
+        shipmentSearchCriteria.setStatus(ShipmentStatus.IN_TRANSIT);
+        List<Shipment> shipmentList = shipmentSearchByCriteriaRepository.searchShipmentByCriteria(shipmentSearchCriteria);
+
+        shipmentList.forEach(s ->
+                System.out.println(
+                        s.getShipmentName() + " | " + s.getShipmentStatus()
+                )
+        );
+
+        return;
+    }
+
+/*    @Transactional
     public List<Shipment> getAllShipmentsWithDetails() {
         List<Shipment> shipments = shipmentRepository.findAllWithDetails();
         return shipments;
     }
 
     @Transactional
-    public Shipment findWithDetailsByShipmentId(UUID shipmentId) {
+    public Shipment getShipmentByShipmentId(UUID shipmentId) {
         Optional<Shipment> shipment = shipmentRepository.findWithDetailsByShipmentId(shipmentId);
 
-/*        if(shipment.isPresent()){
+*//*        if(shipment.isPresent()){
             return shipment.get();
         } else {
             return null;
-        }*/
+        }*//*
 
         return shipment.orElse(null);
-    }
+    }*/
 
-    @Transactional
-    public Page<ShipmentListDto> getShipmentList(int page, int size) {
-        return shipmentRepository.findShipmentList(PageRequest.of(page, size));
-    }
+
 
 
 }

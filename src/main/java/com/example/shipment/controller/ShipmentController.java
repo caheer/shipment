@@ -7,7 +7,6 @@ import com.example.shipment.service.ShipmentService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -41,21 +40,29 @@ public class ShipmentController {
         return statusUpdateResult;
     }
 
-    @GetMapping("/getShipmentById/{shipmentId}")
+    @GetMapping("/getShipmentListPage")
+    public Page<ShipmentListDto> getShipmentListPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+        return shipmentService.getShipmentListPage(page, size);
+    }
+
+    @GetMapping("/searchShipmentsByCriteria")
+    public void searchShipmentsByCriteria() {
+        shipmentService.searchShipmentsByCriteria();
+        return;
+    }
+
+/*    @GetMapping("/getShipmentByShipmentId/{shipmentId}")
     public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
-        Shipment shipment = shipmentService.findWithDetailsByShipmentId(shipmentId);
+        Shipment shipment = shipmentService.getShipmentByShipmentId(shipmentId);
         return shipment;
     }
 
-    @GetMapping("/getAll")
-    public List<Shipment> getAllShipments() {
+    @GetMapping("/getAllShipmentsWithDetails")
+    public List<Shipment> getAllShipmentsWithDetails() {
         List<Shipment> shipments = shipmentService.getAllShipmentsWithDetails();
         return shipments;
-    }
+    }*/
 
-    @GetMapping("/shipmentsList")
-    public Page<ShipmentListDto> getShipments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-        return shipmentService.getShipmentList(page, size);
-    }
+
 
 }

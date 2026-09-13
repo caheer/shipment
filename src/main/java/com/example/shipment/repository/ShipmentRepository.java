@@ -18,14 +18,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
 
     Shipment findByShipmentId(UUID shipmentId);
 
-    @EntityGraph(attributePaths = {
-            "insurance",
-            "insurance.provider",
-            "customer",
-            "assignedCourier"
-    })
-    @Query("select s from Shipment s")
-    List<Shipment> findAllWithDetails();
+
 
     @Query("""
                 select new com.example.shipment.dto.ShipmentListDto(
@@ -40,8 +33,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
             """)
     Page<ShipmentListDto> findShipmentList(Pageable pageable);
 
-
-    @EntityGraph(attributePaths = {
+/*    @EntityGraph(attributePaths = {
             "customer",
             "insurance",
             "insurance.provider",
@@ -49,5 +41,13 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
     })
     Optional<Shipment> findWithDetailsByShipmentId(UUID shipmentId);
 
+    @EntityGraph(attributePaths = {
+            "insurance",
+            "insurance.provider",
+            "customer",
+            "assignedCourier"
+    })
+    @Query("select s from Shipment s")
+    List<Shipment> findAllWithDetails();*/
 
 }

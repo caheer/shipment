@@ -20,11 +20,11 @@ public class ShipmentTag {
     @Column(name = "shipment_tag_id")
     private UUID shipmentTagId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipment_id", nullable = false)
     private Shipment shipment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_code", nullable = false)
     private Tag tag;
 }
