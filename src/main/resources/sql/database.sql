@@ -123,7 +123,7 @@ CREATE TABLE insurance_providers (
 CREATE TABLE shipments (
                            shipment_id                 UUID,
 
-                           customer_id                 UUID NOT NULL,
+                           customer_id                 UUID,
                            current_location_id         UUID,
                            destination_location_id     UUID,
                            assigned_courier_id         UUID,
