@@ -48,21 +48,5 @@ public class ShipmentController {
     @GetMapping("/searchShipmentsByCriteria")
     public void searchShipmentsByCriteria() {
         shipmentService.searchShipmentsByCriteria();
-        return;
     }
-
-/*    @GetMapping("/getShipmentByShipmentId/{shipmentId}")
-    public Shipment getShipmentByShipmentId(@PathVariable UUID shipmentId) {
-        Shipment shipment = shipmentService.getShipmentByShipmentId(shipmentId);
-        return shipment;
-    }
-
-    @GetMapping("/getAllShipmentsWithDetails")
-    public List<Shipment> getAllShipmentsWithDetails() {
-        List<Shipment> shipments = shipmentService.getAllShipmentsWithDetails();
-        return shipments;
-    }*/
-
-
-
 }

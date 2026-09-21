@@ -10,9 +10,14 @@
 -- Child tables must be dropped before referenced tables.
 -- ============================================================
 
+DROP TABLE IF EXISTS shipments_comments;
+DROP TABLE IF EXISTS customers_comments;
+DROP TABLE IF EXISTS shipment_comments;
+DROP TABLE IF EXISTS customer_comments;
 DROP TABLE IF EXISTS shipment_tags;
 DROP TABLE IF EXISTS shipment_insurance;
 DROP TABLE IF EXISTS shipment_events;
+DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS shipments;
 
 DROP TABLE IF EXISTS tags;
@@ -130,7 +135,7 @@ CREATE TABLE shipments (
 
                            shipment_status                      VARCHAR(50) NOT NULL,
                            shipment_name               VARCHAR(255) NOT NULL,
-                           shipment_comment            VARCHAR(1000),
+                           shipment_description          VARCHAR(1000),
 
                            weight_kg                   NUMERIC(10,3),
                            declared_value              NUMERIC(12,2),
@@ -185,6 +190,52 @@ CREATE TABLE shipment_events (
 );
 
 
+-- ============================================================
+-- COMMENTS
+-- Base table for JOINED inheritance:
+-- Comment -> ShipmentComment / CustomerComment
+-- ============================================================
+
+-- comment author column (employee_id) to be introduced once Employee
+-- hierarchy is added; added_by can then be removed.
+
+CREATE TABLE comments (
+                          comment_id   UUID PRIMARY KEY,
+                          comment_text VARCHAR(255) NOT NULL,
+                          comment_date TIMESTAMP NOT NULL,
+                          added_by     VARCHAR(255)
+);
+
+-- ============================================================
+-- SHIPMENT COMMENTS
+-- ============================================================
+
+CREATE TABLE shipments_comments (
+                                    comment_id  UUID PRIMARY KEY,
+                                    shipment_id UUID NOT NULL,
+                                    priority_action BOOLEAN NOT NULL,
+
+                                    FOREIGN KEY (comment_id)
+                                        REFERENCES comments(comment_id),
+
+                                    FOREIGN KEY (shipment_id)
+                                        REFERENCES shipments(shipment_id)
+);
+
+-- ============================================================
+-- CUSTOMER COMMENTS
+-- ============================================================
+
+CREATE TABLE customers_comments (
+                                    comment_id UUID PRIMARY KEY,
+                                    customer_id UUID NOT NULL,
+
+                                    FOREIGN KEY (comment_id)
+                                        REFERENCES comments(comment_id),
+
+                                    FOREIGN KEY (customer_id)
+                                        REFERENCES customers(customer_id)
+);
 -- ============================================================
 -- SHIPMENT TAGS
 -- Association entity between Shipment and Tag.

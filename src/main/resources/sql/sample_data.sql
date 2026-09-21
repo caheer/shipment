@@ -118,7 +118,7 @@ INSERT INTO shipments (
     assigned_courier_id,
     shipment_status,
     shipment_name,
-    shipment_comment,
+    shipment_description,
     weight_kg,
     declared_value
 )
@@ -646,3 +646,72 @@ VALUES
         9000000003,
         4200.00
     );
+
+-- ============================================================
+-- COMMENTS (JOINED inheritance base table)
+-- ============================================================
+
+INSERT INTO comments (
+    comment_id,
+    comment_text,
+    comment_date,
+    added_by
+)
+VALUES
+    ('a0000000-0000-0000-0000-000000000001', 'Customer requested careful handling at the next facility.', '2026-08-01 09:30:00', 'Anna Nowak'),
+    ('a0000000-0000-0000-0000-000000000002', 'Package exterior should be checked before dispatch.', '2026-08-01 11:15:00', 'Piotr Zielinski'),
+    ('a0000000-0000-0000-0000-000000000003', 'Courier assignment still pending.', '2026-08-03 10:00:00', 'Anna Nowak'),
+    ('a0000000-0000-0000-0000-000000000004', 'Large package; use loading equipment.', '2026-08-04 08:45:00', 'Marta Kowal'),
+    ('a0000000-0000-0000-0000-000000000005', 'High-value electronics; verify seal at handover.', '2026-08-05 12:20:00', 'Piotr Zielinski'),
+    ('a0000000-0000-0000-0000-000000000006', 'Documents should remain in the secure pouch.', '2026-08-06 14:10:00', 'Marta Kowal'),
+    ('a0000000-0000-0000-0000-000000000007', 'Recipient confirmed availability after 17:00.', '2026-08-07 15:30:00', 'Anna Nowak'),
+    ('a0000000-0000-0000-0000-000000000008', 'Inspect packaging after arrival at destination facility.', '2026-08-11 13:40:00', 'Piotr Zielinski'),
+    ('a0000000-0000-0000-0000-000000000009', 'Insurance details verified with declared value.', '2026-08-16 09:25:00', 'Marta Kowal'),
+    ('a0000000-0000-0000-0000-000000000010', 'Priority delivery requested by operations.', '2026-08-19 16:05:00', 'Anna Nowak'),
+
+    ('b0000000-0000-0000-0000-000000000001', 'Customer prefers telephone contact before delivery.', '2026-08-02 10:10:00', 'Piotr Zielinski'),
+    ('b0000000-0000-0000-0000-000000000002', 'Customer regularly sends high-value electronics.', '2026-08-05 09:05:00', 'Anna Nowak'),
+    ('b0000000-0000-0000-0000-000000000003', 'Confirm destination details on the next order.', '2026-08-08 12:30:00', 'Marta Kowal'),
+    ('b0000000-0000-0000-0000-000000000004', 'Customer requested electronic delivery confirmations.', '2026-08-12 11:45:00', 'Piotr Zielinski'),
+    ('b0000000-0000-0000-0000-000000000005', 'Customer has recurring insured shipments.', '2026-08-16 15:20:00', 'Anna Nowak'),
+    ('b0000000-0000-0000-0000-000000000006', 'Use email as the preferred contact channel.', '2026-08-20 10:35:00', 'Marta Kowal');
+
+
+-- ============================================================
+-- SHIPMENT COMMENTS (JOINED subtype table)
+-- ============================================================
+
+INSERT INTO shipments_comments (
+    comment_id,
+    shipment_id,
+    priority_action
+)
+VALUES
+    ('a0000000-0000-0000-0000-000000000001', '60000000-0000-0000-0000-000000000001', FALSE),
+    ('a0000000-0000-0000-0000-000000000002', '60000000-0000-0000-0000-000000000001', TRUE),
+    ('a0000000-0000-0000-0000-000000000003', '60000000-0000-0000-0000-000000000003', TRUE),
+    ('a0000000-0000-0000-0000-000000000004', '60000000-0000-0000-0000-000000000004', FALSE),
+    ('a0000000-0000-0000-0000-000000000005', '60000000-0000-0000-0000-000000000005', TRUE),
+    ('a0000000-0000-0000-0000-000000000006', '60000000-0000-0000-0000-000000000006', FALSE),
+    ('a0000000-0000-0000-0000-000000000007', '60000000-0000-0000-0000-000000000007', FALSE),
+    ('a0000000-0000-0000-0000-000000000008', '60000000-0000-0000-0000-000000000011', TRUE),
+    ('a0000000-0000-0000-0000-000000000009', '60000000-0000-0000-0000-000000000016', FALSE),
+    ('a0000000-0000-0000-0000-000000000010', '60000000-0000-0000-0000-000000000019', TRUE);
+
+
+-- ============================================================
+-- CUSTOMER COMMENTS (JOINED subtype table)
+-- Comments are about customers, not authored by them.
+-- ============================================================
+
+INSERT INTO customers_comments (
+    comment_id,
+    customer_id
+)
+VALUES
+    ('b0000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001'),
+    ('b0000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000003'),
+    ('b0000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000004'),
+    ('b0000000-0000-0000-0000-000000000004', '10000000-0000-0000-0000-000000000005'),
+    ('b0000000-0000-0000-0000-000000000005', '10000000-0000-0000-0000-000000000008'),
+    ('b0000000-0000-0000-0000-000000000006', '10000000-0000-0000-0000-000000000006');

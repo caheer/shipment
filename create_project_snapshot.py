@@ -4,12 +4,23 @@ from datetime import datetime
 project_root = Path.cwd()
 src_dir = project_root / "src"
 
-# Example: project_snapshot_2026-09-13_11-35-42.txt
+excluded_dir = (
+    project_root
+    / "src"
+    / "main"
+    / "java"
+    / "com"
+    / "example"
+    / "playground"
+)
+
+# Example: project_snapshot_2026-09-21_17-02-15.txt
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 output_file = project_root / f"project_snapshot_{timestamp}.txt"
 
 print(f"Project directory: {project_root}")
 print(f"Looking for src in: {src_dir}")
+print(f"Excluding: {excluded_dir}")
 
 
 def write_file(output, file_path):
@@ -43,11 +54,16 @@ with output_file.open("w", encoding="utf-8") as output:
     else:
         print("WARNING: pom.xml not found")
 
-    # Add everything under src/
+    # Add everything under src/, except playground
     if src_dir.exists():
         for file_path in sorted(src_dir.rglob("*")):
+
+            if excluded_dir in file_path.parents:
+                continue
+
             if file_path.is_file():
                 write_file(output, file_path)
+
     else:
         print("WARNING: src directory not found")
 

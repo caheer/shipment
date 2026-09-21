@@ -16,9 +16,13 @@ import java.util.UUID;
 @Repository
 public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
 
-    Shipment findByShipmentId(UUID shipmentId);
+    Optional<Shipment> findByShipmentId(UUID shipmentId);
 
 
+/*    @EntityGraph(attributePaths = {
+            "shipmentComments"
+    })
+    List<Shipment> getShipmentsWithComments();*/
 
     @Query("""
                 select new com.example.shipment.dto.ShipmentListDto(
@@ -33,14 +37,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
             """)
     Page<ShipmentListDto> findShipmentList(Pageable pageable);
 
-/*    @EntityGraph(attributePaths = {
-            "customer",
-            "insurance",
-            "insurance.provider",
-            "assignedCourier"
-    })
-    Optional<Shipment> findWithDetailsByShipmentId(UUID shipmentId);
-
+    // I'm not currently using the ones below, they are here for reference / potential future use
+/*
     @EntityGraph(attributePaths = {
             "insurance",
             "insurance.provider",
@@ -48,6 +46,27 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
             "assignedCourier"
     })
     @Query("select s from Shipment s")
-    List<Shipment> findAllWithDetails();*/
+    List<Shipment> findAllWithDetails();
+
+    @Query("""
+                        select s from Shipment s where s.shipmentStatus = :status
+            """)
+    List<Shipment> findShipmentsByStatus(@Param("status") ShipmentStatus status);
+
+    @Query("""
+                        SELECT s
+                        FROM Shipment s
+                        WHERE s.shipmentStatus = :status
+                        AND LOWER(s.shipmentName) LIKE LOWER(CONCAT('%', :name, '%'))
+            """)
+    List<Shipment> findShipmentsByStatusAndName(ShipmentStatus status, String name);
+
+    @Query("""
+                SELECT DISTINCT s
+                FROM Shipment s
+                LEFT JOIN FETCH s.shipmentComments
+            """)
+    List<Shipment> findAllShipmentsWithComments();
+*/
 
 }

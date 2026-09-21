@@ -1,10 +1,7 @@
 package com.example.shipment.service;
 
 import com.example.shipment.dto.ShipmentListDto;
-import com.example.shipment.model.Event;
-import com.example.shipment.model.Shipment;
-import com.example.shipment.model.ShipmentEvent;
-import com.example.shipment.model.ShipmentStatus;
+import com.example.shipment.model.*;
 import com.example.shipment.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -24,20 +21,17 @@ public class ShipmentService {
     private final ShipmentEventRepository shipmentEventRepository;
     private final ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository;
 
-    private final EntityManager entityManager;
-
     public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository, ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository, EntityManager entityManager) {
         this.shipmentRepository = shipmentRepository;
         this.eventRepository = eventRepository;
         this.shipmentEventRepository = shipmentEventRepository;
         this.shipmentSearchByCriteriaRepository = shipmentSearchByCriteriaRepository;
-        this.entityManager = entityManager;
     }
 
     @Transactional
     public Shipment createNewShipment(Shipment shipment) {
 
-        Event event = eventRepository.findByEventCode(4000000001L);
+        Event event = eventRepository.findByEventCode(4000000001L).orElseThrow();
         Shipment newShipment = new Shipment(UUID.randomUUID(), null, ShipmentStatus.CREATED, null,
                 null, shipment.getShipmentName(), null, null, null);
         shipmentRepository.save(newShipment);
@@ -53,12 +47,15 @@ public class ShipmentService {
             UUID shipmentId,
             ShipmentStatus shipmentStatus) {
 
-        Shipment shipment = shipmentRepository.findByShipmentId(shipmentId);
+        Shipment shipment = shipmentRepository.findByShipmentId(shipmentId)
+                .orElseThrow(() ->
+                        new RuntimeException("Shipment not found: " + shipmentId));
+
         shipment.setShipmentStatus(shipmentStatus);
 /*
         shipmentRepository.save(shipment); - not needed, entity is already managed, dirty checking will do the save
 */
-        Event event = eventRepository.findByEventName(shipmentStatus.name());
+        Event event = eventRepository.findByEventName(shipmentStatus.name()).orElseThrow();
         ShipmentEvent shipmentEvent = new ShipmentEvent(UUID.randomUUID(), shipment, event, LocalDateTime.now());
         shipmentEventRepository.save(shipmentEvent);
 
@@ -82,30 +79,5 @@ public class ShipmentService {
                         s.getShipmentName() + " | " + s.getShipmentStatus()
                 )
         );
-
-        return;
     }
-
-/*    @Transactional
-    public List<Shipment> getAllShipmentsWithDetails() {
-        List<Shipment> shipments = shipmentRepository.findAllWithDetails();
-        return shipments;
-    }
-
-    @Transactional
-    public Shipment getShipmentByShipmentId(UUID shipmentId) {
-        Optional<Shipment> shipment = shipmentRepository.findWithDetailsByShipmentId(shipmentId);
-
-*//*        if(shipment.isPresent()){
-            return shipment.get();
-        } else {
-            return null;
-        }*//*
-
-        return shipment.orElse(null);
-    }*/
-
-
-
-
 }
