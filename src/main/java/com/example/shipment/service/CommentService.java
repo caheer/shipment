@@ -1,5 +1,7 @@
 package com.example.shipment.service;
 
+import com.example.shipment.exception.ShipmentCommentNotFoundException;
+import com.example.shipment.exception.ShipmentNotFoundException;
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.comment.ShipmentComment;
 import com.example.shipment.repository.ShipmentCommentRepository;
@@ -24,7 +26,7 @@ public class CommentService {
 
     @Transactional
     public void addNewShipmentComment(UUID shipmentId, ShipmentComment shipmentComment) {
-        Shipment shipment = shipmentRepository.findByShipmentId(shipmentId).orElseThrow();
+        Shipment shipment = shipmentRepository.findByShipmentId(shipmentId).orElseThrow(() -> new ShipmentNotFoundException(shipmentId));
         shipmentComment.setCommentId(UUID.randomUUID());
         shipmentComment.setCommentDate(LocalDateTime.now());
         shipmentComment.setShipment(shipment);
@@ -33,7 +35,7 @@ public class CommentService {
 
     @Transactional
     public void deleteShipmentComment(UUID commentId) {
-        ShipmentComment shipmentComment = shipmentCommentRepository.findById(commentId).orElseThrow();
+        ShipmentComment shipmentComment = shipmentCommentRepository.findById(commentId).orElseThrow(() -> new ShipmentCommentNotFoundException(commentId));
         shipmentCommentRepository.delete(shipmentComment);
     }
 }

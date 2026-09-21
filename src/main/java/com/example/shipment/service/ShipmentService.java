@@ -1,6 +1,8 @@
 package com.example.shipment.service;
 
 import com.example.shipment.dto.ShipmentListDto;
+import com.example.shipment.exception.EventConfigurationException;
+import com.example.shipment.exception.ShipmentNotFoundException;
 import com.example.shipment.model.*;
 import com.example.shipment.repository.*;
 import jakarta.persistence.EntityManager;
@@ -49,13 +51,13 @@ public class ShipmentService {
 
         Shipment shipment = shipmentRepository.findByShipmentId(shipmentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Shipment not found: " + shipmentId));
+                        new ShipmentNotFoundException(shipmentId));
 
         shipment.setShipmentStatus(shipmentStatus);
 /*
         shipmentRepository.save(shipment); - not needed, entity is already managed, dirty checking will do the save
 */
-        Event event = eventRepository.findByEventName(shipmentStatus.name()).orElseThrow();
+        Event event = eventRepository.findByEventName(shipmentStatus.name()).orElseThrow(() -> new EventConfigurationException(shipmentStatus.name()));
         ShipmentEvent shipmentEvent = new ShipmentEvent(UUID.randomUUID(), shipment, event, LocalDateTime.now());
         shipmentEventRepository.save(shipmentEvent);
 
@@ -79,5 +81,10 @@ public class ShipmentService {
                         s.getShipmentName() + " | " + s.getShipmentStatus()
                 )
         );
+    }
+
+    @Transactional
+    public Shipment getShipmentById(UUID shipmentId) {
+        return shipmentRepository.findByShipmentId(shipmentId).orElseThrow(() -> new ShipmentNotFoundException(shipmentId));
     }
 }

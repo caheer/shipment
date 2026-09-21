@@ -49,4 +49,9 @@ public class ShipmentController {
     public void searchShipmentsByCriteria() {
         shipmentService.searchShipmentsByCriteria();
     }
+
+    @GetMapping("/getShipmentById/{shipmentId}")
+    public Shipment getShipmentById(@PathVariable UUID shipmentId) {
+        return shipmentService.getShipmentById(shipmentId);
+    }
 }
