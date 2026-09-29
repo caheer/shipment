@@ -1,10 +1,9 @@
 package com.example.shipment.controller;
 
-import com.example.shipment.service.FakePdfGenerationService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.shipment.pdf.PdfGenerationCoordinator;
+import com.example.shipment.pdf.PdfJobRegistry;
+import com.example.shipment.pdf.PdfJobStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -12,22 +11,38 @@ import java.util.UUID;
 @RequestMapping(path = "/pdf")
 public class PdfController {
 
-    private final FakePdfGenerationService fakePdfGenerationService;
+    private final PdfGenerationCoordinator pdfGenerationCoordinator;
+    private final PdfJobRegistry pdfJobRegistry;
 
-    public PdfController(FakePdfGenerationService fakePdfGenerationService) {
-        this.fakePdfGenerationService = fakePdfGenerationService;
+    public PdfController(PdfGenerationCoordinator pdfGenerationCoordinator, PdfJobRegistry pdfJobRegistry) {
+        this.pdfGenerationCoordinator = pdfGenerationCoordinator;
+        this.pdfJobRegistry = pdfJobRegistry;
     }
 
-    @GetMapping("/generatePdf/{shipmentId}")
-    public String generatePdf(@PathVariable UUID shipmentId) {
+    @GetMapping("/status/{jobId}")
+    public PdfJobStatus getStatus(@PathVariable UUID jobId) {
+        return pdfJobRegistry.getStatus(jobId);
+    }
 
+    @PostMapping("/generatePdf/{shipmentId}")
+    public UUID generatePdf(@PathVariable UUID shipmentId) {
+
+        return pdfGenerationCoordinator.startGeneration(shipmentId);
+
+/*
+        we don't really use manual Thread handling like this:
         Thread thread = new Thread(
                 () -> fakePdfGenerationService.generateShipmentPdf(shipmentId)
         );
 
         thread.start();
+*/
 
-        return "PDF generation started";
+
+/*              Future is not very efficient - future.get blocks the thread by making it wait till the task is complete
+                Future<?> future =
+                pdfExecutor.submit(
+                        () -> fakePdfGenerationService.generateShipmentPdf(shipmentId)
+                );*/
     }
-
 }

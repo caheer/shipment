@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class FakePdfGenerationService {
@@ -35,7 +36,8 @@ public class FakePdfGenerationService {
         );
 
         try {
-            Thread.sleep(3000);
+            int randomNumber = ThreadLocalRandom.current().nextInt(3000, 8001);
+            Thread.sleep(randomNumber);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("PDF generation interrupted", e);
