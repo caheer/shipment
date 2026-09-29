@@ -4,6 +4,7 @@ import com.example.shipment.service.FakePdfGenerationService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 @Service
@@ -27,6 +28,20 @@ public class PdfGenerationCoordinator {
 
         pdfJobRegistry.createJob(jobId);
 
+        CompletableFuture<Void> future =
+                CompletableFuture.runAsync(() -> {
+                    pdfJobRegistry.markRunning(jobId);
+                    fakePdfGenerationService.generateShipmentPdf(shipmentId);
+                }, pdfExecutor);
+
+        future
+                .thenRun(() -> pdfJobRegistry.markCompleted(jobId))
+                .exceptionally(ex -> {
+                    pdfJobRegistry.markFailed(jobId);
+                    return null;
+                });
+
+/*
         pdfExecutor.execute(() -> {
             try {
                 pdfJobRegistry.markRunning(jobId);
@@ -38,7 +53,7 @@ public class PdfGenerationCoordinator {
             } catch (Exception e) {
                 pdfJobRegistry.markFailed(jobId);
             }
-        });
+        });*/
 
         return jobId;
     }
