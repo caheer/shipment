@@ -28,20 +28,47 @@ public class PdfGenerationCoordinator {
 
         pdfJobRegistry.createJob(jobId);
 
+        // whenComplete: completion callback that always runs, regardless of success or failurr
+        // When this future is done, inspect whether it succeeded or failed and do some side effect
+
+        CompletableFuture
+                .runAsync(() -> {
+
+                    pdfJobRegistry.markRunning(jobId);
+
+                    fakePdfGenerationService
+                            .generateShipmentPdf(shipmentId);
+
+                }, pdfExecutor)
+                .whenComplete((result, exception) -> {
+
+                    if (exception == null) {
+                        pdfJobRegistry.markCompleted(jobId);
+                    } else {
+                        pdfJobRegistry.markFailed(jobId);
+                    }
+
+                });
+
+
+/*
+    The version below splits success and failure handling into two separate stages.
+    thenRun(...) runs only if the previous stage completed successfully
+
+
         CompletableFuture<Void> future =
                 CompletableFuture.runAsync(() -> {
                     pdfJobRegistry.markRunning(jobId);
                     fakePdfGenerationService.generateShipmentPdf(shipmentId);
                 }, pdfExecutor);
 
-        future
-                .thenRun(() -> pdfJobRegistry.markCompleted(jobId))
+        future.thenRun(() -> pdfJobRegistry.markCompleted(jobId))
                 .exceptionally(ex -> {
                     pdfJobRegistry.markFailed(jobId);
                     return null;
-                });
-
-/*
+                });*/
+//###########################################£££
+        /* Just plain executor with execute
         pdfExecutor.execute(() -> {
             try {
                 pdfJobRegistry.markRunning(jobId);
