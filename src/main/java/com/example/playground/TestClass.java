@@ -1,4 +1,4 @@
-/*
+
 package com.example.playground;
 
 import com.example.shipment.model.Shipment;
@@ -35,11 +35,11 @@ public class TestClass {
 
         Set<String> stringSet =     Set.of("asd","ASDF");
         Shipment shipment = new Shipment(UUID.randomUUID());
-
+/*
         ShipmentValidator shipmentValidatorLiteral = s -> s.getShipmentName() != null;
         validateShipment(shipmentValidatorLiteral,shipment);
 
-        validateShipment(s -> s.getShipmentName() != null,shipment);
+        validateShipment(s -> s.getShipmentName() != null,shipment);*/
 
         String shipmentSummary = prepareShipmentSummary(s -> s.getShipmentName() + s.getShipmentDescription(),shipment);
 
@@ -49,10 +49,10 @@ public class TestClass {
     private String prepareShipmentSummary(Function<Shipment,String> summaryCreator,Shipment s){
         return summaryCreator.apply(s);
     }
-
+/*
     private void validateShipment(ShipmentValidator sv, Shipment s){
         boolean validationResult = sv.validate(s);
-    }
+    }*/
 
     public <T> T first(List<T> list) {
         return list.get(0);
@@ -65,4 +65,3 @@ public class TestClass {
     public <T extends Shipment> void process(List<? extends T> list) {
     }
 }
-*/
