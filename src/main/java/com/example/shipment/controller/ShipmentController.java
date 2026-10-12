@@ -1,5 +1,6 @@
 package com.example.shipment.controller;
 
+import com.example.shipment.dto.ShipmentDetailsDto;
 import com.example.shipment.dto.ShipmentListDto;
 import com.example.shipment.model.Shipment;
 import com.example.shipment.model.ShipmentStatus;
@@ -51,7 +52,7 @@ public class ShipmentController {
     }
 
     @GetMapping("/getShipmentById/{shipmentId}")
-    public Shipment getShipmentById(@PathVariable UUID shipmentId) {
+    public ShipmentDetailsDto getShipmentById(@PathVariable UUID shipmentId) {
         return shipmentService.getShipmentById(shipmentId);
     }
 }

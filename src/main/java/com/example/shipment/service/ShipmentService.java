@@ -1,8 +1,11 @@
 package com.example.shipment.service;
 
+import com.example.shipment.dto.ShipmentDetailsDto;
 import com.example.shipment.dto.ShipmentListDto;
 import com.example.shipment.exception.EventConfigurationException;
 import com.example.shipment.exception.ShipmentNotFoundException;
+import com.example.shipment.kafka.ShipmentEventProducer;
+import com.example.shipment.kafka.ShipmentStatusChangedEvent;
 import com.example.shipment.model.*;
 import com.example.shipment.repository.*;
 import jakarta.persistence.EntityManager;
@@ -22,12 +25,14 @@ public class ShipmentService {
     private final EventRepository eventRepository;
     private final ShipmentEventRepository shipmentEventRepository;
     private final ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository;
+    private final ShipmentEventProducer shipmentEventProducer;
 
-    public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository, ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository, EntityManager entityManager) {
+    public ShipmentService(ShipmentRepository shipmentRepository, EventRepository eventRepository, ShipmentEventRepository shipmentEventRepository, ShipmentSearchByCriteriaRepository shipmentSearchByCriteriaRepository, EntityManager entityManager, ShipmentEventProducer shipmentEventProducer) {
         this.shipmentRepository = shipmentRepository;
         this.eventRepository = eventRepository;
         this.shipmentEventRepository = shipmentEventRepository;
         this.shipmentSearchByCriteriaRepository = shipmentSearchByCriteriaRepository;
+        this.shipmentEventProducer = shipmentEventProducer;
     }
 
     @Transactional
@@ -61,6 +66,14 @@ public class ShipmentService {
         ShipmentEvent shipmentEvent = new ShipmentEvent(UUID.randomUUID(), shipment, event, LocalDateTime.now());
         shipmentEventRepository.save(shipmentEvent);
 
+        shipmentEventProducer.publish(
+                new ShipmentStatusChangedEvent(
+                        shipmentId,
+                        shipmentStatus,
+                        LocalDateTime.now()
+                )
+        );
+
         return "Shipment " + shipmentId + "status updated to: " + shipmentStatus.getLabel();
     }
 
@@ -84,7 +97,7 @@ public class ShipmentService {
     }
 
     @Transactional
-    public Shipment getShipmentById(UUID shipmentId) {
-        return shipmentRepository.findByShipmentId(shipmentId).orElseThrow(() -> new ShipmentNotFoundException(shipmentId));
+    public ShipmentDetailsDto getShipmentById(UUID shipmentId) {
+        return shipmentRepository.findDtoByShipmentId(shipmentId);
     }
 }

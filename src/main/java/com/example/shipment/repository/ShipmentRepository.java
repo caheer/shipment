@@ -1,5 +1,6 @@
 package com.example.shipment.repository;
 
+import com.example.shipment.dto.ShipmentDetailsDto;
 import com.example.shipment.dto.ShipmentListDto;
 import com.example.shipment.model.Shipment;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,20 @@ import java.util.UUID;
 public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
 
     Optional<Shipment> findByShipmentId(UUID shipmentId);
+
+    @Query("""
+                select new com.example.shipment.dto.ShipmentListDto(
+                    s.shipmentId,
+                    c.customerId,
+                    c.customerName,
+                    s.shipmentName,
+                    s.shipmentStatus
+                )
+                from Shipment s
+                left join s.customer c
+                            where  s.shipmentId = :shipmentId
+            """)
+    ShipmentDetailsDto findDtoByShipmentId(UUID shipmentId);
 
 
 /*    @EntityGraph(attributePaths = {
