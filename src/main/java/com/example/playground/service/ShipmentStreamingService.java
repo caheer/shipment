@@ -1,13 +1,9 @@
-package com.example.playground;
+package com.example.playground.service;
 
-import com.example.shipment.dto.ShipmentListDto;
 import com.example.shipment.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 // ONLY FOR STREAM PRACTICE
 @Service

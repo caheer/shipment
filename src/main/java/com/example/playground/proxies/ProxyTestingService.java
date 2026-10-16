@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TestingService {
+public class ProxyTestingService {
 
     public void processShipment() {
         updateDatabase();

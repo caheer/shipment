@@ -14,6 +14,9 @@
 
 #create-drop
 #Creates it and drops it when the persistence context/application shuts down.
+app:
+  config:
+    threads: 3
 
 spring:
   datasource:
